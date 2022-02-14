@@ -1,0 +1,321 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Load file:
+```{r}
+adult<-read.csv(file= "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", sep = ",", header=FALSE)
+
+colnames(adult) <- c("Age","workclass","fnlwgt","education","education-num","marital-status","occupation","relationship","race","sex","capital-gain","capital-loss", "hours-per-week", "native-country", "class")
+
+str(adult)
+summary(adult)
+```
+##Age Variable
+```{r}
+# Histogram
+hist(adult$Age, freq = TRUE, col = "white", main = "Age")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$Age, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+sd(adult$Age)
+var(adult$Age)
+
+```
+#Education Num Variable
+```{r}
+# Histogram
+hist(adult$`education-num`, freq = TRUE, col = "white", main = "Education-Num")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$Age, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+
+sd(adult$`education-num`)
+var(adult$`education-num`)
+```
+##Capital Gain Variable
+```{r}
+# Histogram
+hist(adult$'capital-gain', freq = TRUE, col = "white", main = "Capital Gain")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$'capital-gain', horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+sd(adult$`capital-gain`)
+var(adult$`capital-gain`)
+```
+
+#Capital Loss Variable
+```{r}
+# Histogram
+hist(adult$'capital-loss', freq = TRUE, col = "white", main = "Capital Loss")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$'capital-loss', horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+
+```{r}
+sd(adult$`capital-loss`)
+var(adult$`capital-loss`)
+
+```
+#Hours per week Variable
+```{r}
+# Histogram
+hist(adult$`hours-per-week`, freq = TRUE, col = "white", main = "Hours per Week")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$`hours-per-week`, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+sd(adult$`hours-per-week`)
+var(adult$`hours-per-week`)
+
+```
+
+#Workclass Variable
+```{r}
+table(adult$workclass)
+
+countsworkclass <- table(adult$workclass)
+barplot(countsworkclass, main="Workclass Distribution",
+        xlab="Workclass")
+```
+
+#Education Variable
+```{r}
+table(adult$education)
+
+countsedu <- table(adult$education)
+barplot(countsedu, main="Education Distribution",
+        xlab="Education Level")
+```
+
+#Marital Status Variable
+```{r}
+table(adult$`marital-status`)
+
+countsmarital <- table(adult$`marital-status`)
+barplot(countsmarital, main="Marital Status Distribution",
+        xlab="Marital Status")
+```
+#Occupation Variable
+```{r}
+table(adult$occupation)
+
+countsoccu <- table(adult$occupation)
+barplot(countsoccu, main="Occupation Distribution",
+        xlab="Occupation")
+
+```
+
+#Relationship Variable
+```{r}
+table(adult$relationship)
+
+countsrel <- table(adult$relationship)
+barplot(countsrel, main="Relationship Distribution",
+        xlab="Relationship")
+```
+
+#Race Variable
+```{r}
+table(adult$race)
+
+countsrace <- table(adult$race)
+barplot(countsrace, main="Race Distribution",
+        xlab="Race")
+```
+#Sex Variable
+```{r}
+table(adult$sex)
+
+countssex <- table(adult$sex)
+barplot(countssex, main="Sex Distribution",
+        xlab="Sex")
+
+```
+#Native Country Variable
+```{r}
+table(adult$`native-country`)
+
+countsnative <- table(adult$`native-country`)
+barplot(countsnative, main="Native Country Distribution",
+        xlab="Country")
+
+```
+#Create duplicate file for cleaning
+```{r}
+adultclean<-adult
+
+str(adultclean)
+```
+
+##FIND MISSING VALUES
+```{r}
+# find elements
+replace <- adultclean == " ?"
+# replace elements with NA
+is.na(adultclean) <- replace
+```
+
+
+```{r}
+#Missing values per attribute
+sapply(adultclean, function(x) sum(is.na(x)))
+
+#subset of missing values
+new_DF <- adultclean[rowSums(is.na(adultclean)) > 0,]
+```
+##Clean white space
+```{r}
+adultclean <- as.data.frame(apply(adultclean,2, function(x) gsub("\\s+", "", x))) 
+```
+
+
+#Fill Missing Values with Mode
+```{r}
+#Replace Workclass missing values with mode - Private
+A<-is.na(adultclean$workclass)
+adultclean$workclass[A]<-"Private"
+
+#Replace occupation missing values with mode - Prof Specialty
+B<-is.na(adultclean$occupation)
+adultclean$occupation[B]<-"Prof-specialty"
+
+
+#Replace Native Country missing values with mode - United-States
+C<-is.na(adultclean$`native-country`)
+adultclean$`native-country`[C]<-"United-States"
+```
+
+# Redo counts after missing values
+```{r}
+#Workclass Variable
+table(adultclean$workclass)
+
+#Occupation Variable
+table(adultclean$occupation)
+
+#Native Country  Variable
+table(adultclean$`native-country`)
+```
+
+#Look at Class Variable
+```{r}
+table(adult$class)
+```
+
+###Compare Education and Education-num
+```{r}
+library(dplyr)
+distinct(adult,education,`education-num`)
+
+
+
+```
+#Drop Education-num
+```{r}
+adultclean$`education-num`<-NULL
+```
+
+#Drop Fnlwgt 
+```{r}
+adultclean$fnlwgt<-NULL
+```
+
+#Update Workclass Categories
+```{r}
+adultclean["workclass"][adultclean["workclass"]=='Federal-gov' |adultclean["workclass"]=='Local-gov' |adultclean["workclass"]=='State-gov']<-"Government"
+
+adultclean["workclass"][adultclean["workclass"]=='Never-worked' |adultclean["workclass"]=='Without-pay']<-"Other"
+
+adultclean["workclass"][adultclean["workclass"]=='Self-emp-inc' |adultclean["workclass"]=='Self-emp-not-inc']<-"Self Employed"
+
+table(adultclean$workclass)
+
+
+countswc <- table(adultclean$workclas)
+barplot(countswc, main="Workclass Distribution",
+        xlab="Workclass")
+```
+#Update Education Categories
+```{r}
+adultclean["education"][adultclean["education"]=='Preschool' |adultclean["education"]=='1st-4th' |adultclean["education"]=='5th-6th' |adultclean["education"]=='7th-8th' |adultclean["education"]=='9th' |adultclean["education"]=='10th' |adultclean["education"]=='11th' |adultclean["education"]=='12th']<-"Below Highschool"
+
+adultclean["education"][adultclean["education"]=='HS-grad']<-"Highschool Grad"
+
+adultclean["education"][adultclean["education"]=='Assoc-acdm' |adultclean["education"]=='Assoc-voc']<-"Associate"
+
+adultclean["education"][adultclean["education"]=='Prof-school' |adultclean["education"]=='Doctorate' |adultclean["education"]=='Masters']<-"Grad School"
+
+table(adultclean$education)
+countsed <- table(adultclean$education)
+barplot(countsed, main="Education Distribution",
+        xlab="Education")
+```
+#Clean Marital Status
+```{r}
+adultclean["marital-status"][adultclean["marital-status"]=='Married-civ-spouse' |adultclean["marital-status"]=='Married-spouse-absent' |adultclean["marital-status"]=='Married-AF-spouse']<-"Married"
+
+table(adultclean$`marital-status`)
+```
+#Correlation
+
+```{r}
+
+```
+
+```{r}
+subset_adult<-adultclean[,c("Age","hours-per-week","capital-gain","capital-loss")]
+plot(subset_adult)
+
+subset_adult$Age<-as.integer(subset_adult$Age)
+subset_adult$`hours-per-week`<-as.integer(subset_adult$`hours-per-week`)
+subset_adult$`capital-gain`<-as.integer(subset_adult$`capital-gain`)
+subset_adult$`capital-loss`<-as.integer(subset_adult$`capital-loss`)
+str(subset_adult)
+
+cor(subset_adult,method="pearson")
+cor(subset_adult,method="spearman")
+```
+
+
+```{r}
+subset_adult$Age<-as.integer(subset_adult$Age)
+subset_adult$`hours-per-week`<-as.integer(subset_adult$`hours-per-week`)
+subset_adult$`capital-gain`<-as.integer(subset_adult$`capital-gain`)
+subset_adult$`capital-loss`<-as.integer(subset_adult$`capital-loss`)
+str(subset_adult)
+```
+

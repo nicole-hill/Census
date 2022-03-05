@@ -1,0 +1,60 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+
+```
+
+```{r setup, include=FALSE}
+library("party")
+```
+
+```{r}
+adult_ctree <- ctree(class ~ Age + capital.gain + capital.loss + hours.per.week + workclass_Government + workclass_Other + workclass_Private + workclass_Self.Employed + education_Associate + education_Bachelors + education_Below.Highschool + education_Grad.School + education_Highschool.Grad + education_Some.college + marital.status_Divorced + marital.status_Married.AF.spouse +marital.status_Married.civ.spouse + marital.status_Married.spouse.absent + marital.status_Never.married + marital.status_Separated + marital.status_Widowed + occupation_Adm.clerical + occupation_Armed.Forces +occupation_Craft.repair + occupation_Exec.managerial + occupation_Farming.fishing + occupation_Handlers.cleaners + occupation_Machine.op.inspct + occupation_Other.service + occupation_Priv.house.serv + occupation_Prof.specialty + occupation_Protective.serv + occupation_Sales + occupation_Tech.support + occupation_Transport.moving + relationship_Husband + relationship_Not.in.family + relationship_Other.relative + relationship_Own.child + relationship_Unmarried + relationship_Wife + race_Amer.Indian.Eskimo + race_Asian.Pac.Islander + race_Black +race_Other + race_White + sex_Female + sex_Male, data=adultdum2)
+```
+
+```{r}
+print(adult_ctree)
+```
+
+
+```{r}
+plot(adult_ctree, type="simple")
+```
+
+```{r}
+traindec<-traindum
+testdec<-testdum
+
+traindec["class"][traindec["class"]==0]<-'<=50K'
+traindec["class"][traindec["class"]==1]<-'>50K'
+
+testdec["class"][testdec["class"]==0]<-'<=50K'
+testdec["class"][testdec["class"]==1]<-'>50K'
+
+testdec$class<-as.factor(testdec$class)
+traindec$class<-as.factor(traindec$class)
+```
+
+
+#Model Decision Tree
+```{r}
+adult_ctree_model <- ctree(class ~ ., data=traindec)
+```
+
+```{r}
+adult_ctree_prediction <- predict(adult_ctree_model, newdata=testdec) 
+# gives the probability for each class
+head(adult_ctree_prediction)
+```
+
+```{r}
+table(adult_ctree_prediction, testdec$class)
+```

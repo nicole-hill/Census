@@ -1,0 +1,36 @@
+---
+title: "Logistic Regression"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+#Split into Test and Train
+```{r}
+set.seed(13)
+train_index=sample(1:nrow(adultnorm),0.7*nrow(adultnorm))
+train<-adultnorm[train_index,]
+test<-adultnorm[-train_index,]
+
+head(train)
+head(test)
+```
+
+```{r}
+glm_model<-glm(class~.,train,family="binomial")
+summary(glm_model)
+```
+#Confusion Matrix
+```{r}
+lrpredicted <- predict(glm_model,test,type="response")
+predicted_income<-ifelse(lrpredicted>=0.5,1,0)
+confusionmatrix<-table(actual=test$class,predicted=predicted_income)
+print(confusionmatrix)
+
+Accuracy<-sum(diag(confusionmatrix))/nrow(test)
+print(Accuracy)
+```

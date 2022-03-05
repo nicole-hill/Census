@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Create Dummy Variables
+```{r}
+install.packages('fastDummies')
+library('fastDummies')
+```
+
+```{r}
+adultdum<-adultnorm
+adultdum <- dummy_cols(adultdum, select_columns = 'workclass')
+adultdum <- dummy_cols(adultdum, select_columns = 'education')
+adultdum <- dummy_cols(adultdum, select_columns = 'marital-status')
+adultdum <- dummy_cols(adultdum, select_columns = 'occupation')
+adultdum <- dummy_cols(adultdum, select_columns = 'relationship')
+adultdum <- dummy_cols(adultdum, select_columns = 'race')
+adultdum <- dummy_cols(adultdum, select_columns = 'sex')
+
+adultdum <- dummy_cols(adultdum, select_columns = 'native-country')
+
+adultdum$workclass<-NULL
+adultdum$education<-NULL
+adultdum$`marital-status`<-NULL
+adultdum$occupation<-NULL
+adultdum$relationship<-NULL
+adultdum$race<-NULL
+adultdum$sex<-NULL
+adultdum$`native-country`<-NULL
+```
+
+#Convert to Numeric
+```{r}
+adultdum2 <- data.frame(lapply(adultdum, function(x) as.numeric(as.character(x))))
+```
+
+#KNN
+```{r}
+install.packages("class")
+install.packages("gmodels")
+library(class)
+library(gmodels)
+```
+
+```{r}
+set.seed(13)
+train_indexdum=sample(1:nrow(adultdum2),0.7*nrow(adultdum2))
+traindum<-adultdum2[train_indexdum,]
+testdum<-adultdum2[-train_indexdum,]
+
+train.set.knn<-traindum[-5]
+test.set.knn<-testdum[-5]
+
+
+
+train.set_labels<-traindum$class
+test.set_labels<-testdum$class
+
+
+
+test_pred <- knn(train = train.set.knn, test = test.set.knn, cl = train.set_labels, k=10)
+test_pred2<-knn(train = train.set.knn, test = test.set.knn, cl = train.set_labels, k=180)
+```
+
+```{r}
+
+#k=10
+CrossTable(x=test.set_labels, y=test_pred, prop.chisq=FALSE)
+table(Actual=test.set_labels, Predicted=test_pred)
+```
+
+```{r}
+#k=180
+CrossTable(x=test.set_labels, y=test_pred2, prop.chisq=FALSE)
+table(Actual=test.set_labels, Predicted=test_pred2)
+```
+

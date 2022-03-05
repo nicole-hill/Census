@@ -1,0 +1,27 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+###Naive Bayes
+```{r}
+nb_model<-naiveBayes(class~.,data=train)
+```
+
+```{r}
+nb_predict<-predict(nb_model,newdata=test)
+```
+
+
+```{r}
+
+
+table(nb_predict,test$class)
+```
+

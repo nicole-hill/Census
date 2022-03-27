@@ -1,0 +1,938 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Load file:
+```{r}
+adult<-read.csv(file= "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", sep = ",", header=FALSE)
+
+colnames(adult) <- c("Age","workclass","fnlwgt","education","education-num","marital-status","occupation","relationship","race","sex","capital-gain","capital-loss", "hours-per-week", "native-country", "class")
+
+str(adult)
+summary(adult)
+```
+##Age Variable
+```{r}
+# Histogram
+hist(adult$Age, freq = TRUE, col = "white", main = "Age")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$Age, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+`````
+
+```{r}
+ageclass<-subset(adult,select=c("Age","class"))
+
+
+ageclass$Age <- cut(
+  ageclass$Age,
+  breaks = c(0, 30, 45, 60, Inf),
+  labels = c("Under 30", "31-45", "46-60", "Over 60"),
+  right  = FALSE
+)
+
+```
+
+
+
+```{r}
+ageclasstab<-table(ageclass$class,ageclass$Age)
+barplot(ageclasstab, main="Age Distribution",
+        xlab="Age",legend.text = rownames(ageclasstab),beside=TRUE)
+
+print(ageclasstab)
+```
+
+
+
+```{r}
+sd(adult$Age)
+var(adult$Age)
+
+```
+#Education Num Variable
+```{r}
+# Histogram
+hist(adult$`education-num`, freq = TRUE, col = "white", main = "Education-Num")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$Age, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+
+sd(adult$`education-num`)
+var(adult$`education-num`)
+```
+##Capital Gain Variable
+```{r}
+# Histogram
+hist(adult$'capital-gain', freq = TRUE, col = "white", main = "Capital Gain")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$'capital-gain', horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+sd(adult$`capital-gain`)
+var(adult$`capital-gain`)
+```
+
+#Capital Loss Variable
+```{r}
+# Histogram
+hist(adult$'capital-loss', freq = TRUE, col = "white", main = "Capital Loss")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$'capital-loss', horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+
+```{r}
+sd(adult$`capital-loss`)
+var(adult$`capital-loss`)
+
+```
+#Hours per week Variable
+```{r}
+# Histogram
+hist(adult$`hours-per-week`, freq = TRUE, col = "white", main = "Hours per Week")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adult$`hours-per-week`, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+
+```{r}
+sd(adult$`hours-per-week`)
+var(adult$`hours-per-week`)
+
+```
+
+#Workclass Variable
+```{r}
+table(adult$workclass)
+
+countsworkclass <- table(adult$workclass)
+barplot(countsworkclass, main="Workclass Distribution",
+        xlab="Workclass")
+```
+
+#Education Variable
+```{r}
+table(adult$education)
+
+countsedu <- table(adult$education)
+barplot(countsedu, main="Education Distribution",
+        xlab="Education Level")
+```
+
+#Marital Status Variable
+```{r}
+table(adult$`marital-status`)
+
+countsmarital <- table(adult$`marital-status`)
+barplot(countsmarital, main="Marital Status Distribution",
+        xlab="Marital Status")
+```
+#Occupation Variable
+```{r}
+table(adult$occupation)
+
+countsoccu <- table(adult$occupation)
+barplot(countsoccu, main="Occupation Distribution",
+        xlab="Occupation")
+
+```
+
+#Relationship Variable
+```{r}
+table(adult$relationship)
+
+countsrel <- table(adult$relationship)
+barplot(countsrel, main="Relationship Distribution",
+        xlab="Relationship")
+```
+
+#Race Variable
+```{r}
+table(adult$race)
+
+countsrace <- table(adult$race)
+barplot(countsrace, main="Race Distribution",
+        xlab="Race")
+
+raceclass<-table(adult$class,adult$race)
+barplot(raceclass, main="Race Distribution",
+        xlab="Race",legend.text = rownames(raceclass),beside=TRUE)
+
+print(raceclass)
+```
+#Sex Variable
+```{r}
+table(adult$sex)
+
+countssex <- table(adult$sex)
+barplot(countssex, main="Sex Distribution",
+        xlab="Sex")
+
+sexclass<-table(adult$class,adult$sex)
+barplot(sexclass, main="Sex Distribution",
+        xlab="Sex",legend.text = rownames(sexclass),beside=TRUE)
+
+print(sexclass)
+
+
+```
+#Native Country Variable
+```{r}
+table(adult$`native-country`)
+
+countsnative <- table(adult$`native-country`)
+barplot(countsnative, main="Native Country Distribution",
+        xlab="Country")
+
+```
+#Create duplicate file for cleaning
+```{r}
+adultclean<-adult
+
+str(adultclean)
+```
+
+##FIND MISSING VALUES
+```{r}
+# find elements
+replace <- adultclean == " ?"
+# replace elements with NA
+is.na(adultclean) <- replace
+```
+
+
+```{r}
+#Missing values per attribute
+sapply(adultclean, function(x) sum(is.na(x)))
+
+#subset of missing values
+new_DF <- adultclean[rowSums(is.na(adultclean)) > 0,]
+```
+##Clean white space
+```{r}
+adultclean <- as.data.frame(apply(adultclean,2, function(x) gsub("\\s+", "", x))) 
+```
+
+
+#Fill Missing Values with Mode
+```{r}
+#Replace Workclass missing values with mode - Private
+A<-is.na(adultclean$workclass)
+adultclean$workclass[A]<-"Private"
+
+#Replace occupation missing values with mode - Prof Specialty
+B<-is.na(adultclean$occupation)
+adultclean$occupation[B]<-"Prof-specialty"
+
+
+#Replace Native Country missing values with mode - United-States
+C<-is.na(adultclean$`native-country`)
+adultclean$`native-country`[C]<-"United-States"
+```
+
+# Redo counts after missing values
+```{r}
+#Workclass Variable
+table(adultclean$workclass)
+
+#Occupation Variable
+table(adultclean$occupation)
+
+#Native Country  Variable
+table(adultclean$`native-country`)
+```
+
+#Look at Class Variable
+```{r}
+table(adult$class)
+```
+
+###Compare Education and Education-num
+```{r}
+library(dplyr)
+distinct(adult,education,`education-num`)
+
+
+
+```
+#Drop Education-num
+```{r}
+adultclean$`education-num`<-NULL
+```
+
+#Drop Fnlwgt 
+```{r}
+adultclean$fnlwgt<-NULL
+```
+
+#Update Workclass Categories
+```{r}
+adultclean["workclass"][adultclean["workclass"]=='Federal-gov' |adultclean["workclass"]=='Local-gov' |adultclean["workclass"]=='State-gov']<-"Government"
+
+adultclean["workclass"][adultclean["workclass"]=='Never-worked' |adultclean["workclass"]=='Without-pay']<-"Other"
+
+adultclean["workclass"][adultclean["workclass"]=='Self-emp-inc' |adultclean["workclass"]=='Self-emp-not-inc']<-"Self Employed"
+
+table(adultclean$workclass)
+
+
+countswc <- table(adultclean$workclas)
+barplot(countswc, main="Workclass Distribution",
+        xlab="Workclass")
+```
+#Update Education Categories
+```{r}
+adultclean["education"][adultclean["education"]=='Preschool' |adultclean["education"]=='1st-4th' |adultclean["education"]=='5th-6th' |adultclean["education"]=='7th-8th' |adultclean["education"]=='9th' |adultclean["education"]=='10th' |adultclean["education"]=='11th' |adultclean["education"]=='12th']<-"Below Highschool"
+
+adultclean["education"][adultclean["education"]=='HS-grad']<-"Highschool Grad"
+
+adultclean["education"][adultclean["education"]=='Assoc-acdm' |adultclean["education"]=='Assoc-voc']<-"Associate"
+
+adultclean["education"][adultclean["education"]=='Prof-school' |adultclean["education"]=='Doctorate' |adultclean["education"]=='Masters']<-"Grad School"
+
+table(adultclean$education)
+countsed <- table(adultclean$education)
+barplot(countsed, main="Education Distribution",
+        xlab="Education")
+```
+#Clean Marital Status
+```{r}
+adultclean["marital-status"][adultclean["marital-status"]=='Married-civ-spouse' |adultclean["marital-status"]=='Married-spouse-absent' |adultclean["marital-status"]=='Married-AF-spouse']<-"Married"
+
+table(adultclean$`marital-status`)
+```
+#Clean Native Country
+```{r}
+adultclean["native-country"][adultclean["native-country"]=='Cuba' |adultclean["native-country"]=='Jamaica' |adultclean["native-country"]=='India' |adultclean["native-country"]=='Mexico' |adultclean["native-country"]=='South' |adultclean["native-country"]=='Puerto-Rico' |adultclean["native-country"]=='Honduras' |adultclean["native-country"]=='England'|adultclean["native-country"]=='Canada'|adultclean["native-country"]=='Germany'|adultclean["native-country"]=='Iran'|adultclean["native-country"]=='Philippines'|adultclean["native-country"]=='Italy'|adultclean["native-country"]=='Poland'|adultclean["native-country"]=='Columbia'|adultclean["native-country"]=='Cambodia'|adultclean["native-country"]=='Thailand'|adultclean["native-country"]=='Ecuador'|adultclean["native-country"]=='Laos'|adultclean["native-country"]=='Taiwan'|adultclean["native-country"]=='Haiti'|adultclean["native-country"]=='Portugal'|adultclean["native-country"]=='Dominican-Republic'|adultclean["native-country"]=='El-Salvador'|adultclean["native-country"]=='France'|adultclean["native-country"]=='Guatemala'|adultclean["native-country"]=='China'|adultclean["native-country"]=='Japan'|adultclean["native-country"]=='Yugoslavia'|adultclean["native-country"]=='Peru'|adultclean["native-country"]=='Outlying-US(Guam-USVI-etc)'|adultclean["native-country"]=='Scotland'|adultclean["native-country"]=='Trinadad&Tobago'|adultclean["native-country"]=='Greece'|adultclean["native-country"]=='Nicaragua'|adultclean["native-country"]=='Vietnam'|adultclean["native-country"]=='Hong'|adultclean["native-country"]=='Ireland'|adultclean["native-country"]=='Hungary'|adultclean["native-country"]=='Holand-Netherlands']<-"Outside US"
+```
+
+
+#Correlation
+
+```{r}
+
+```
+
+```{r}
+subset_adult<-adultclean[,c("Age","hours-per-week","capital-gain","capital-loss")]
+plot(subset_adult)
+
+subset_adult$Age<-as.integer(subset_adult$Age)
+subset_adult$`hours-per-week`<-as.integer(subset_adult$`hours-per-week`)
+subset_adult$`capital-gain`<-as.integer(subset_adult$`capital-gain`)
+subset_adult$`capital-loss`<-as.integer(subset_adult$`capital-loss`)
+str(subset_adult)
+
+cor(subset_adult,method="pearson")
+cor(subset_adult,method="spearman")
+```
+
+```{r}
+install.packages("reshape2")
+library(reshape2)
+ 
+# creating correlation matrix
+corr_mat <- round(cor(subset_adult),2)
+ 
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(corr_mat)
+head(melted_corr_mat)
+ 
+# plotting the correlation heatmap
+library(ggplot2)
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) +
+geom_tile() +
+geom_text(aes(Var2, Var1, label = value),
+          color = "black", size = 4)
+
+```
+
+
+```{r}
+subset_adult$Age<-as.integer(subset_adult$Age)
+subset_adult$`hours-per-week`<-as.integer(subset_adult$`hours-per-week`)
+subset_adult$`capital-gain`<-as.integer(subset_adult$`capital-gain`)
+subset_adult$`capital-loss`<-as.integer(subset_adult$`capital-loss`)
+str(subset_adult)
+```
+
+
+```{r}
+
+adultclean$Age<-as.integer(adultclean$Age)
+adultclean$`hours-per-week`<-as.integer(adultclean$`hours-per-week`)
+adultclean$`capital-gain`<-as.integer(adultclean$`capital-gain`)
+adultclean$`capital-loss`<-as.integer(adultclean$`capital-loss`)
+str(adultclean)
+```
+
+#Update Class Variable
+#<=50K is 0 and >50K is 1
+```{r}
+
+
+adultclean["class"][adultclean["class"]=='<=50K']<-0
+adultclean["class"][adultclean["class"]=='>50K']<-1
+
+```
+
+
+##Check Outliers for Hours per Week
+
+
+
+```{r}
+adultclean$`hours-per-week`<-as.integer(adultclean$`hours-per-week`)
+adultclean$zscorehours<-scale(adultclean$`hours-per-week`)
+length(which(abs(adultclean$zscorehours)>3))
+```
+
+#Replace outliers with mean value
+```{r}
+adultclean$`hours-per-week`[which(abs(adultclean$zscorehours)>3)] <- mean(adultclean$`hours-per-week`, na.rm = TRUE)
+
+
+# Histogram
+hist(adultclean$`hours-per-week`, freq = TRUE, col = "white", main = "Hours per Week")
+# Add new plot
+par(new = TRUE)
+# Box plot
+boxplot(adultclean$`hours-per-week`, horizontal = TRUE, axes = FALSE, col = rgb(0, 0.8, 1, alpha = 0.5))
+# Box around the plots
+box()
+```
+#Standardize Numeric Variables
+```{r}
+normalize <- function(x, na.rm = TRUE) {
+    return((x- min(x)) /(max(x)-min(x)))
+}
+
+adultnorm<-adultclean
+
+adultnorm$`capital-gain`<-as.integer(adultnorm$`capital-gain`)
+adultnorm$`capital-loss`<-as.integer(adultnorm$`capital-loss`)
+adultnorm$Age<-as.integer(adultnorm$Age)
+adultnorm$class<-as.integer(adultnorm$class)
+#str(adultnorm)
+adultnorm$`capital-gain`<-normalize(adultnorm$`capital-gain`)
+adultnorm$`capital-loss`<-normalize(adultnorm$`capital-loss`)
+adultnorm$Age<-normalize(adultnorm$Age)
+adultnorm$`hours-per-week`<-normalize(adultnorm$`hours-per-week`)
+adultnorm$zscorehours<-NULL
+```
+
+
+
+```{r}
+colnames(adultnorm)
+names(adultnorm)[names(adultnorm) == "marital-status"] <- "maritalstatus"
+names(adultnorm)[names(adultnorm) == "capital-gain"] <- "capitalgain"
+names(adultnorm)[names(adultnorm) == "capital-loss"] <- "capitalloss"
+names(adultnorm)[names(adultnorm) == "hours-per-week"] <- "hoursperweek"
+names(adultnorm)[names(adultnorm) == "native-country"] <- "nativecountry"
+
+colnames(adultnorm)
+```
+
+#Split into Test and Train
+```{r}
+set.seed(13)
+train_index=sample(1:nrow(adultnorm),0.7*nrow(adultnorm))
+train<-adultnorm[train_index,]
+test<-adultnorm[-train_index,]
+
+set.seed(14)
+train_index2=sample(1:nrow(adultnorm),0.7*nrow(adultnorm))
+train2<-adultnorm[train_index2,]
+test2<-adultnorm[-train_index2,]
+
+set.seed(15)
+train_index3=sample(1:nrow(adultnorm),0.7*nrow(adultnorm))
+train3<-adultnorm[train_index3,]
+test3<-adultnorm[-train_index3,]
+
+
+
+
+head(train)
+head(test)
+
+head(train2)
+head(test2)
+```
+
+#Logistic Regression
+```{r}
+start.timelr <- Sys.time()
+glm_model<-glm(class~.,train,family="binomial")
+summary(glm_model)
+end.timelr <- Sys.time()
+time.takenlr <- end.timelr - start.timelr
+time.takenlr
+```
+#Logistic Regression 2
+```{r}
+start.timelr2 <- Sys.time()
+glm_model2<-glm(class~.,train2,family="binomial")
+summary(glm_model2)
+end.timelr2 <- Sys.time()
+time.takenlr2 <- end.timelr2 - start.timelr2
+time.takenlr2
+```
+#Logistic Regression 3
+```{r}
+start.timelr3 <- Sys.time()
+glm_model3<-glm(class~.,train3,family="binomial")
+summary(glm_model3)
+end.timelr3 <- Sys.time()
+time.takenlr3 <- end.timelr3 - start.timelr3
+time.takenlr3
+```
+
+#Logistic Regression Confusion Matrix
+```{r}
+lrpredicted <- predict(glm_model,test,type="response")
+predicted_income<-ifelse(lrpredicted>=0.5,1,0)
+confusionmatrix<-table(actual=test$class,predicted=predicted_income)
+print(confusionmatrix)
+
+library(caret)
+Accuracy<-sum(diag(confusionmatrix))/nrow(test)
+print(Accuracy)
+sensitivity(confusionmatrix)
+specificity(confusionmatrix)
+```
+#Logistic Regression Confusion Matrix2
+```{r}
+lrpredicted2 <- predict(glm_model2,test2,type="response")
+predicted_income2<-ifelse(lrpredicted2>=0.5,1,0)
+confusionmatrix2<-table(actual=test2$class,predicted=predicted_income2)
+print(confusionmatrix2)
+
+library(caret)
+Accuracy2<-sum(diag(confusionmatrix2))/nrow(test2)
+print(Accuracy2)
+sensitivity(confusionmatrix2)
+specificity(confusionmatrix2)
+```
+#Logistic Regression Confusion Matrix3
+```{r}
+lrpredicted3 <- predict(glm_model3,test3,type="response")
+predicted_income3<-ifelse(lrpredicted3>=0.5,1,0)
+confusionmatrix3<-table(actual=test3$class,predicted=predicted_income3)
+print(confusionmatrix3)
+
+library(caret)
+Accuracy3<-sum(diag(confusionmatrix3))/nrow(test2)
+print(Accuracy3)
+sensitivity(confusionmatrix3)
+specificity(confusionmatrix3)
+```
+###Logistic Regression Predict White Male
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="White", sex="Male", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+###Logistic Regression Predict White Female
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="White", sex="Female", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+###Logistic Regression Predict Black Male
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="Black", sex="Male", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+
+###Logistic Regression Predict Black female
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="Black", sex="Female", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+###Logistic Regression Predict Asian Male
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="Asian-Pac-Islander", sex="Male", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+
+
+###Logistic Regression Predict Indian Male
+```{r}
+predict(glm_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="Amer-Indian-Eskimo", sex="Male", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="response")
+```
+#####Dummy Variables
+
+```{r}
+#install.packages('fastDummies')
+library('fastDummies')
+```
+
+
+```{r}
+adultdum<-adultnorm
+adultdum <- dummy_cols(adultdum, select_columns = 'workclass')
+adultdum <- dummy_cols(adultdum, select_columns = 'education')
+adultdum <- dummy_cols(adultdum, select_columns = 'maritalstatus')
+adultdum <- dummy_cols(adultdum, select_columns = 'occupation')
+adultdum <- dummy_cols(adultdum, select_columns = 'relationship')
+adultdum <- dummy_cols(adultdum, select_columns = 'race')
+adultdum <- dummy_cols(adultdum, select_columns = 'sex')
+
+adultdum <- dummy_cols(adultdum, select_columns = 'nativecountry')
+
+adultdum$workclass<-NULL
+adultdum$education<-NULL
+adultdum$maritalstatus<-NULL
+adultdum$occupation<-NULL
+adultdum$relationship<-NULL
+adultdum$race<-NULL
+adultdum$sex<-NULL
+adultdum$nativecountry<-NULL
+```
+
+
+```{r}
+#Convert all to numeric
+adultdum2 <- data.frame(lapply(adultdum, function(x) as.numeric(as.character(x))))
+
+```
+
+
+##KNN
+```{r}
+#install.packages("class")
+#install.packages("gmodels")
+library(class)
+library(gmodels)
+```
+
+
+```{r}
+set.seed(13)
+train_indexdum=sample(1:nrow(adultdum2),0.7*nrow(adultdum2))
+traindum<-adultdum2[train_indexdum,]
+testdum<-adultdum2[-train_indexdum,]
+
+train.set.knn<-traindum[-5]
+test.set.knn<-testdum[-5]
+
+
+
+train.set_labels<-traindum$class
+test.set_labels<-testdum$class
+
+
+start.timekn1 <- Sys.time()
+test_pred <- knn(train = train.set.knn, test = test.set.knn, cl = train.set_labels, k=10)
+end.timekn1 <- Sys.time()
+time.takenkn1 <- end.timekn1 - start.timekn1
+time.takenkn1
+
+start.timekn2 <- Sys.time()
+test_pred2<-knn(train = train.set.knn, test = test.set.knn, cl = train.set_labels, k=180)
+end.timekn2 <- Sys.time()
+time.takenkn2<- end.timekn2 - start.timekn2
+time.takenkn2
+```
+
+```{r}
+
+#k=10
+CrossTable(x=test.set_labels, y=test_pred, prop.chisq=FALSE)
+table(Actual=test.set_labels, Predicted=test_pred)
+```
+```{r}
+#k=180
+CrossTable(x=test.set_labels, y=test_pred2, prop.chisq=FALSE)
+table(Actual=test.set_labels, Predicted=test_pred2)
+```
+
+##KNN2
+```{r}
+set.seed(19)
+train_indexdum2=sample(1:nrow(adultdum2),0.7*nrow(adultdum2))
+traindum2<-adultdum2[train_indexdum2,]
+testdum2<-adultdum2[-train_indexdum2,]
+
+train.set.knn2<-traindum2[-5]
+test.set.knn2<-testdum2[-5]
+
+
+
+train.set_labels2<-traindum2$class
+test.set_labels2<-testdum2$class
+
+
+
+test_pred2a <- knn(train = train.set.knn2, test = test.set.knn2, cl = train.set_labels2, k=10)
+
+test_pred2b<-knn(train = train.set.knn2, test = test.set.knn2, cl = train.set_labels2, k=180)
+
+```
+
+```{r}
+#k=10
+CrossTable(x=test.set_labels2, y=test_pred2a, prop.chisq=FALSE)
+table(Actual=test.set_labels2, Predicted=test_pred2a)
+```
+```{r}
+#k=180
+CrossTable(x=test.set_labels2, y=test_pred2b, prop.chisq=FALSE)
+table(Actual=test.set_labels2, Predicted=test_pred2b)
+```
+##KNN3
+```{r}
+set.seed(29)
+train_indexdum3=sample(1:nrow(adultdum2),0.7*nrow(adultdum2))
+traindum3<-adultdum2[train_indexdum3,]
+testdum3<-adultdum2[-train_indexdum3,]
+
+train.set.knn3<-traindum3[-5]
+test.set.knn3<-testdum3[-5]
+
+
+
+train.set_labels3<-traindum3$class
+test.set_labels3<-testdum3$class
+
+
+
+test_pred3a <- knn(train = train.set.knn3, test = test.set.knn3, cl = train.set_labels3, k=10)
+
+test_pred3b<-knn(train = train.set.knn3, test = test.set.knn3, cl = train.set_labels3, k=180)
+
+```
+
+```{r}
+#k=10
+CrossTable(x=test.set_labels3, y=test_pred3a, prop.chisq=FALSE)
+table(Actual=test.set_labels3, Predicted=test_pred3a)
+```
+
+```{r}
+#k=180
+CrossTable(x=test.set_labels3, y=test_pred3b, prop.chisq=FALSE)
+table(Actual=test.set_labels3, Predicted=test_pred3b)
+```
+
+  
+
+##Decision Tree
+```{r }
+library("party")
+```
+
+
+```{r}
+```
+
+
+```{r}
+start.timedt <- Sys.time()
+adult_ctree <- ctree(class ~ ., data=adultdum2)
+end.timedt <- Sys.time()
+time.takendt <- end.timedt - start.timedt
+time.takendt
+
+```
+
+```{r}
+start.timedt2 <- Sys.time()
+print(adult_ctree)
+end.timedt2 <- Sys.time()
+time.takendt2 <- end.timedt2 - start.timedt2
+time.takendt2
+```
+```{r}
+plot(adult_ctree, type="simple")
+```
+```{r}
+traindec<-traindum
+testdec<-testdum
+
+traindec["class"][traindec["class"]==0]<-'<=50K'
+traindec["class"][traindec["class"]==1]<-'>50K'
+
+testdec["class"][testdec["class"]==0]<-'<=50K'
+testdec["class"][testdec["class"]==1]<-'>50K'
+
+testdec$class<-as.factor(testdec$class)
+traindec$class<-as.factor(traindec$class)
+```
+
+
+#Model Decision Tree
+```{r}
+
+start.timedt3 <- Sys.time()
+adult_ctree_model <- ctree(class ~ ., data=traindec)
+end.timedt3 <- Sys.time()
+time.takendt3 <- end.timedt3 - start.timedt3
+time.takendt3
+
+```
+
+```{r}
+adult_ctree_prediction <- predict(adult_ctree_model, newdata=testdec) 
+# gives the probability for each class
+head(adult_ctree_prediction)
+```
+
+```{r}
+table(adult_ctree_prediction, testdec$class)
+```
+#Decision Tree 2
+
+```{r}
+traindec2<-traindum2
+testdec2<-testdum2
+
+traindec2["class"][traindec2["class"]==0]<-'<=50K'
+traindec2["class"][traindec2["class"]==1]<-'>50K'
+
+testdec2["class"][testdec2["class"]==0]<-'<=50K'
+testdec2["class"][testdec2["class"]==1]<-'>50K'
+
+testdec2$class<-as.factor(testdec2$class)
+traindec2$class<-as.factor(traindec2$class)
+```
+
+```{r}
+adult_ctree_model2 <- ctree(class ~ ., data=traindec2)
+```
+
+
+```{r}
+adult_ctree_prediction2 <- predict(adult_ctree_model2, newdata=testdec2) 
+# gives the probability for each class
+head(adult_ctree_prediction2)
+```
+```{r}
+table(adult_ctree_prediction2, testdec2$class)
+```
+#Decision Tree 3
+
+```{r}
+traindec3<-traindum3
+testdec3<-testdum3
+
+traindec3["class"][traindec3["class"]==0]<-'<=50K'
+traindec3["class"][traindec3["class"]==1]<-'>50K'
+
+testdec3["class"][testdec3["class"]==0]<-'<=50K'
+testdec3["class"][testdec3["class"]==1]<-'>50K'
+
+testdec3$class<-as.factor(testdec3$class)
+traindec3$class<-as.factor(traindec3$class)
+```
+
+```{r}
+adult_ctree_model3 <- ctree(class ~ ., data=traindec3)
+```
+
+
+```{r}
+adult_ctree_prediction3 <- predict(adult_ctree_model3, newdata=testdec3) 
+# gives the probability for each class
+head(adult_ctree_prediction3)
+```
+```{r}
+table(adult_ctree_prediction3, testdec3$class)
+```
+###Naive Bayes
+```{r}
+library(e1071)
+
+
+start.timenb <- Sys.time()
+nb_model<-naiveBayes(class~.,data=train)
+end.timenb <- Sys.time()
+time.takennb <- end.timenb - start.timenb
+time.takennb
+```
+
+```{r}
+nb_predict<-predict(nb_model,newdata=test)
+```
+
+
+```{r}
+
+
+table(nb_predict,test$class)
+```
+##Naive Bayes 2
+```{r}
+
+nb_model2<-naiveBayes(class~.,data=train2)
+
+```
+
+```{r}
+nb_predict2<-predict(nb_model2,newdata=test2)
+
+```
+```{r}
+table(nb_predict,test$class)
+```
+
+##Naive Bayes 3
+
+```{r}
+nb_model3<-naiveBayes(class~.,data=train3)
+```
+
+```{r}
+nb_predict3<-predict(nb_model3,newdata=test3)
+```
+
+```{r}
+table(nb_predict3,test3$class)
+```
+
+##Naive Bayes Predict
+#White Female
+```{r}
+predict(nb_model, newdata=data.frame(Age=0.5, workclass="Private",education="Highschool Grad", maritalstatus="Married",occupation="Prof-specialty", relationship="Husband",race="Black", sex="Female", capitalgain=0, hoursperweek=0.5, nativecountry="United-States", capitalloss=0), type="raw")
+```
+```{r}
+
+install.packages('leaps')
+library(MASS) # stepwise regression
+library(leaps)
+
+subsets<-regsubsets(class~.,
+data=adultclean, nbest=1)
+sub.sum <- summary(subsets)
+as.data.frame(sub.sum$outmat)
+
+
+
+```
+
